@@ -1,5 +1,8 @@
 import cdsapi
 
+start = (2006, 10)
+end =   (2007, 1)
+
 dataset = "tigge-forecasts"
 request = {
     "origin": "ecmwf",  # melyik állomás
@@ -8,8 +11,8 @@ request = {
     "day": "06",
     "time": "12:00",
     "level_type": "single_level",
-    "variable": [
-        "2_m_dewpoint_temperature",  # milyen adatokra vagyunk kíváncsiak? 
+    "variable": [                       # milyen paraméterek kellenek?
+        "2_m_dewpoint_temperature",   
         "mean_sea_level_pressure",
         "total_precipitation"
     ],
