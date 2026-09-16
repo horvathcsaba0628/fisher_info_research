@@ -1,0 +1,12 @@
+# Letöltött nyers adatokat nem rakjuk fel Gitre
+tigge_data/
+*.grib
+*.idx 
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+download_log.json
+*.log
