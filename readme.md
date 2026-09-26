@@ -18,3 +18,5 @@ Feljött kérdések:
     - Ensemble tagok száma: a control forecast (1 futtatás) mellett a perturbed forecast tagokat is tervezem letölteni, mert a bizonytalanság/szórás csak ezekből számolható. Az ECMWF-nél 50 tag van — mind az 50 kelljen, vagy elég egy kisebb, reprezentatív részhalmaz (pl. 10-20) egy első, feltáró elemzéshez? Ha mind az 50-t használnánk az jelentősen megnövelné a letöltött fájlok méretét.
 
 A PERTURBED FORECAST LETÖLTÉS EGY HÓNAPRA 30 PERCET VETT IGÉNYBE
+
+.venv\Scripts\Activate.ps1

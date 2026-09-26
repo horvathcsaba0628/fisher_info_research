@@ -5,7 +5,7 @@ import time
 import json
 
 START = (2006, 10)
-END =   (2020, 12)
+END =   (2006, 10)
 
 OUT_DIRECTORY = Path("tigge_data")
 OUT_DIRECTORY.mkdir(exist_ok=True)              # If the directory doesn't exist already, we create it
@@ -77,7 +77,7 @@ def download_one_month(year, month, forecast_type = "control-forecast", tag = "c
         "year": str(year),
         "month": f"{month:02d}",
         "day": days_of_month(year,month),
-        "time": "12:00",
+        "time": "00:00",
         "level_type": "single_level",                       # egy magassági szintű mérés / 
         "variable": [                                       # milyen paraméterek kellenek? / what parameters do we need
             "maximum_2_m_temperature_in_the_last_6_hours",  # max napi / maximum daily temp
@@ -86,7 +86,7 @@ def download_one_month(year, month, forecast_type = "control-forecast", tag = "c
             "total_precipitation"                           # csapadék / precipitation
         ],
         "forecast_type": forecast_type,
-        "leadtime_hour": ["24"],
+        "leadtime_hour": ["6","12","18","24"],
         "data_format": "grib",
         "area": [49, 15.5, 45.5, 23] # kapott értékek a terület leszűkítésére
     }
@@ -103,6 +103,8 @@ def download_one_month(year, month, forecast_type = "control-forecast", tag = "c
             print(f"[HIBA] {key}: {error}")
             log[key] = f"error: {error}"
             save_log()
+
+
 
 # FŐCIKLUS - Letöltés
 for year, month in month_breakdown(START, END):
