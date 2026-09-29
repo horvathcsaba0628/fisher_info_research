@@ -4,8 +4,8 @@ from pathlib import Path
 import time
 import json
 
-START = (2006, 10)
-END =   (2006, 10)
+START = (2007, 1)
+END =   (2020, 12)
 
 OUT_DIRECTORY = Path("tigge_data")
 OUT_DIRECTORY.mkdir(exist_ok=True)              # If the directory doesn't exist already, we create it
@@ -103,8 +103,6 @@ def download_one_month(year, month, forecast_type = "control-forecast", tag = "c
             print(f"[HIBA] {key}: {error}")
             log[key] = f"error: {error}"
             save_log()
-
-
 
 # FŐCIKLUS - Letöltés
 for year, month in month_breakdown(START, END):
