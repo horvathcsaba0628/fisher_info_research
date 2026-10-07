@@ -3,6 +3,9 @@ tigge_data/
 *.grib
 *.idx 
 
+out_txt/
+*.txt
+
 __pycache__/
 *.pyc
 .venv/
