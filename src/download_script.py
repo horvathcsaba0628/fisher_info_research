@@ -4,10 +4,12 @@ from pathlib import Path
 import time
 import json
 
-START = (2007, 1)
+START = (2007,1)
 END =   (2020, 12)
 
-OUT_DIRECTORY = Path("tigge_data")
+PROJECT_DIRECTORY = Path.cwd()
+
+OUT_DIRECTORY = Path(f"{PROJECT_DIRECTORY}/tigge_data")
 OUT_DIRECTORY.mkdir(exist_ok=True)              # If the directory doesn't exist already, we create it
 
 LOG_FILE = OUT_DIRECTORY / "log.json"

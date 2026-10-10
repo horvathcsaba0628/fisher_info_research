@@ -3,12 +3,19 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import eccodes
+from tqdm import tqdm
 
 KELVIN = 273.15
-TXT_DIRECTORY = Path("out_txt") # output mappa létrehozása
+
+PROJECT_DIRECTORY = Path.cwd()
+
+TXT_DIRECTORY = Path(f"{PROJECT_DIRECTORY}/out_txt") # output mappa létrehozása
 TXT_DIRECTORY.mkdir(exist_ok=True)
 
-files = sorted(Path(r"tigge_data").glob("*.grib"))
+START = (2006, 10)
+END =   (2020, 12)
+
+files = sorted(Path(f"{PROJECT_DIRECTORY}/tigge_data").glob("*.grib"))
 
 cities = {
         "Budapest": (47.4979, 19.0402),
@@ -176,17 +183,17 @@ def daily_aggregation_methu(pont_ds, year, month):
     return df
 
 def output_multiple_months(start, end, city, debug = False):
-    """Hónapokon végigmegy, és a város napi értékeit kiírja a out_txt/<város>_output.txt fájlba.
+    """Hónapokon végigmegy, és a város napi értékeit kiírja a out_txt/<város>_final.txt fájlba.
     Rácsváltás-biztos: a get_month_point rácsonként külön olvassa be a fájlokat."""
  
-    months = month_breakdown(start, end)
+    months = list(month_breakdown(start, end))
     skipped = []
  
-    with open(TXT_DIRECTORY / f"{city}_output.txt", "w", encoding="utf-8") as f:
+    with open(TXT_DIRECTORY / f"{city}_final.txt", "w", encoding="utf-8") as f:
  
         f.write("#datum;d_ta;d_tx;d_tn;d_rs\n")
  
-        for month in months:
+        for month in tqdm(months, total= len(months), desc=city, unit="hónap"):
             pt = get_month_point(month[0], month[1], city, debug)
  
             if pt is None:
@@ -200,5 +207,6 @@ def output_multiple_months(start, end, city, debug = False):
  
     print(f"{city}: kihagyott hónapok ({len(skipped)} db): {skipped}")
 
-# FŐŐ
-output_multiple_months((2010,1), (2010,2), "Budapest", True)
+#FŐciklus
+for city in cities:
+    output_multiple_months(START, (2007,6), city)

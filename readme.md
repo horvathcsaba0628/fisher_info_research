@@ -20,3 +20,7 @@ Feljött kérdések:
 A PERTURBED FORECAST LETÖLTÉS EGY HÓNAPRA 30 PERCET VETT IGÉNYBE
 
 .venv\Scripts\Activate.ps1
+
+py -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
