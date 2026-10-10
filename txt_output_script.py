@@ -2,8 +2,11 @@ import xarray as xr
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import eccodes
 
 KELVIN = 273.15
+TXT_DIRECTORY = Path("out_txt") # output mappa létrehozása
+TXT_DIRECTORY.mkdir(exist_ok=True)
 
 files = sorted(Path(r"tigge_data").glob("*.grib"))
 
@@ -33,36 +36,81 @@ def nearest_point(ds, cel_latitude, cel_longitude):
     idx = np.argmin(distance)
     return ds.isel(values=idx)
 
-def get_month_context_range(year, month, debug = False):
+def scan_grib_grids(fname):
+    """Végigmegy a GRIB fájl üzenetein (csak a fejléceket olvassa),
+    és üzenetenként visszaadja a dátumot, a lépést, a változót és a rács adatait."""
+    rows = []
+    with open(fname, "rb") as f:
+        while True:
+            gid = eccodes.codes_grib_new_from_file(f)
+            if gid is None:
+                break
+            rows.append({
+                "date": eccodes.codes_get(gid, "dataDate"),
+                "step": eccodes.codes_get(gid, "step"),
+                "shortName": eccodes.codes_get(gid, "shortName"),
+                "numberOfPoints": eccodes.codes_get(gid, "numberOfPoints"),
+                "gridType": eccodes.codes_get(gid, "gridType"),
+                "N": eccodes.codes_get(gid, "N") if eccodes.codes_is_defined(gid, "N") else None,
+            })
+            eccodes.codes_release(gid)
+ 
+    df = pd.DataFrame(rows)
+    df["date"] = pd.to_datetime(df["date"].astype(str))
+    return df
+ 
+def open_grib_all_grids(fname):
+    """Egy GRIB fájlt rácsonként külön Datasetként nyit meg."""
+    npoints_list = sorted(scan_grib_grids(fname)["numberOfPoints"].unique())
+    return [
+        xr.open_dataset(fname, engine="cfgrib",
+                        backend_kwargs={"filter_by_keys": {"numberOfPoints": int(n)}})
+        for n in npoints_list
+    ]
+ 
+def open_point_all_grids(fname, city):
+    """Rácsonként kivágja a város legközelebbi pontját (a nearest_point-tal),
+    majd időben összefűzi a részeket."""
+    lat, lon = cities[city]
+    parts = []
+    for ds in open_grib_all_grids(fname):
+        pt = nearest_point(ds, lat, lon).drop_vars(["latitude", "longitude"])
+        if "time" not in pt.dims:           # ha a cfgrib skalárrá szűkítette az időt
+            pt = pt.expand_dims("time")
+        parts.append(pt)
+    return xr.concat(parts, dim="time", data_vars="all",
+                     coords="minimal", compat="override").sortby("time")
+ 
+def get_month_point(year, month, city, debug = False):
+    """A get_month_context_range + nearest_point együtt, rácsváltás-biztosan.
+    Ugyanazt adja vissza, amit nearest_point(get_month_context_range(...)) adna:
+    egy (time, step) dimenziós pont-Datasetet, a szomszéd hónapok 1-1 napjával kiegészítve."""
     prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
     prev_file = Path(f"tigge_data/{prev_year}-{prev_month:02}_cf.grib")
-
+ 
     next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
     next_file = Path(f"tigge_data/{next_year}-{next_month:02}_cf.grib")
-
+ 
     fname = Path(f"tigge_data/{year}-{month:02}_cf.grib")
-    
+ 
     if not fname.exists():
-        if debug : print(f"[KIHAGYVA] A hónap hiányzik: {fname}")
+        if debug: print(f"[KIHAGYVA] A hónap hiányzik: {fname}")
         return None
-    
-    file = xr.open_dataset(fname, engine="cfgrib")
-    parts = [file]
-
+ 
+    parts = [open_point_all_grids(fname, city)]
+ 
     if prev_file.exists():
-        prev = xr.open_dataset(prev_file, engine="cfgrib").isel(time=-1)
-        parts.insert(0, prev.expand_dims("time"))
+        parts.insert(0, open_point_all_grids(prev_file, city).isel(time=[-1]))
     else:
         if debug: print(f"[FIGYELEM] Nincs meg az előző hónap fájlja: {prev_file.name}")
-
+ 
     if next_file.exists():
-        nxt = xr.open_dataset(next_file, engine="cfgrib").isel(time=0)
-        parts.append(nxt.expand_dims("time"))
+        parts.append(open_point_all_grids(next_file, city).isel(time=[0]))
     else:
         if debug: print(f"[FIGYELEM] Nincs meg a következő hónap fájlja: {next_file.name}")
-
-    merged = xr.concat(parts, dim="time")
-    return merged.sortby("time")
+ 
+    return xr.concat(parts, dim="time", data_vars="all",
+                     coords="minimal", compat="override").sortby("time")
 
 def daily_max_min_methu(pont_ds, day_index):
 
@@ -127,33 +175,30 @@ def daily_aggregation_methu(pont_ds, year, month):
     
     return df
 
-TXT_DIRECTORY = Path("out_txt") # output mappa létrehozása
-TXT_DIRECTORY.mkdir(exist_ok=True)
-
-def output_multiple_months(start,end, city, debug = False):
-        
-        months = month_breakdown(start,end)
-        skipped = []
-
-        with open("out_txt/bp_output3.txt", "w") as f:
-
-                f.write("#datum;d_ta;d_tx;d_tn;d_rs\n")
-
-                for month in months:
-                        context = get_month_context_range(month[0],month[1], debug)
-
-                        if context is None:
-                                skipped.append(month)
-                                continue
-
-                        pt = nearest_point(context,cities[city][0],cities[city][1])
-
-                        df = daily_aggregation_methu(pt, month[0],month[1])
-
-                        for idx, row in df.iterrows():
-                                f.write(f"{row["datum"]};{row["d_ta"]};{row["d_tx"]};{row["d_tn"]};{row["d_rs"]}\n")
-
-        f.close()
+def output_multiple_months(start, end, city, debug = False):
+    """Hónapokon végigmegy, és a város napi értékeit kiírja a out_txt/<város>_output.txt fájlba.
+    Rácsváltás-biztos: a get_month_point rácsonként külön olvassa be a fájlokat."""
+ 
+    months = month_breakdown(start, end)
+    skipped = []
+ 
+    with open(TXT_DIRECTORY / f"{city}_output.txt", "w", encoding="utf-8") as f:
+ 
+        f.write("#datum;d_ta;d_tx;d_tn;d_rs\n")
+ 
+        for month in months:
+            pt = get_month_point(month[0], month[1], city, debug)
+ 
+            if pt is None:
+                skipped.append(month)
+                continue
+ 
+            df = daily_aggregation_methu(pt, month[0], month[1])
+ 
+            for idx, row in df.iterrows():
+                f.write(f"{row['datum']};{row['d_ta']};{row['d_tx']};{row['d_tn']};{row['d_rs']}\n")
+ 
+    print(f"{city}: kihagyott hónapok ({len(skipped)} db): {skipped}")
 
 # FŐŐ
-output_multiple_months((2010,1), (2010,3), "Budapest", True)
+output_multiple_months((2010,1), (2010,2), "Budapest", True)
