@@ -209,4 +209,4 @@ def output_multiple_months(start, end, city, debug = False):
 
 #FŐciklus
 for city in cities:
-    output_multiple_months(START, (2007,6), city)
+    output_multiple_months(START, END, city)

@@ -24,3 +24,9 @@ A PERTURBED FORECAST LETÖLTÉS EGY HÓNAPRA 30 PERCET VETT IGÉNYBE
 py -m venv .venv
 .venv\Scripts\activate
 python -m pip install -r requirements.txt
+
+// hónapi eloszlás és azaokat összehasonlítani
+
+// boxplot ábrázolás
+
+// varosonkent es összesen is!!
