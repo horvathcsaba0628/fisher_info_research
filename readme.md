@@ -30,3 +30,22 @@ python -m pip install -r requirements.txt
 // boxplot ábrázolás
 
 // varosonkent es összesen is!!
+
+
+// 2026-ig az adat!!!ú
+
+// Intiítiv delta kiszámítás ( majd még jöbb több is)
+
+// tigge mta methu mta ...... delta
+
+// végső 12 boxplot!!
+
+
+// különböző delta számítások összevetése
+
+
+// differnece / avg differnec
+
+// eucledian distance
+
+// normalizing the data in the same way as observed (with average)
