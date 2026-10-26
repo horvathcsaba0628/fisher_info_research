@@ -4,8 +4,8 @@ from pathlib import Path
 import time
 import json
 
-START = (2007,1)
-END =   (2020, 12)
+START = (2020,12)
+END =   (2025, 12)
 
 PROJECT_DIRECTORY = Path.cwd()
 
