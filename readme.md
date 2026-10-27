@@ -31,7 +31,6 @@ python -m pip install -r requirements.txt
 
 // varosonkent es összesen is!!
 
-
 // 2026-ig az adat!!!ú
 
 // Intiítiv delta kiszámítás ( majd még jöbb több is)
@@ -40,12 +39,16 @@ python -m pip install -r requirements.txt
 
 // végső 12 boxplot!!
 
-
 // különböző delta számítások összevetése
-
 
 // differnece / avg differnec
 
 // eucledian distance
 
 // normalizing the data in the same way as observed (with average)
+
+// minden változónak (2006)-2025 átlagát vesszük aztan leosztunk vele, ezt a tigge es a methuta és azoknak az eltérését vesszük
+
+// euklédeszi távolság
+
+// két pont távolsága a mért és az előrejelzett között, és akkor ezekből lehet következtetni
