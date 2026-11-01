@@ -4,7 +4,7 @@ from pathlib import Path
 import time
 import json
 
-START = (2021,1)
+START = (2024,6 )
 END =   (2025, 12)
 
 PROJECT_DIRECTORY = Path.cwd()
@@ -93,9 +93,9 @@ def download_one_month(year, month, forecast_type = "control-forecast", tag = "c
         "area": [49, 15.5, 45.5, 23] # kapott értékek a terület leszűkítésére
     }
 
-    for attempt in range(2):
+    for attempt in range(5):
         try:
-            print(f" - [API REQUEST SENT] {key} (2/{attempt+1} try)")
+            print(f" - [API REQUEST SENT] {key} (5/{attempt+1} try)")
             client.retrieve("tigge-forecasts", request).download(str(fname))
             log[key] = "done"
             save_log()
