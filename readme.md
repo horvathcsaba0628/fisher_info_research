@@ -52,3 +52,9 @@ python -m pip install -r requirements.txt
 // euklédeszi távolság
 
 // két pont távolsága a mért és az előrejelzett között, és akkor ezekből lehet következtetni
+
+// csak 24 órás leadtime??
+
+// boxlplot a 12 hónapra 
+
+majd azért nézzük mrse-vel is

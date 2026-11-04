@@ -13,7 +13,7 @@ TXT_DIRECTORY = Path(f"{PROJECT_DIRECTORY}/out_txt") # output mappa létrehozás
 TXT_DIRECTORY.mkdir(exist_ok=True)
 
 START = (2006, 10)
-END =   (2024, 12)
+END =   (2025, 12)
 
 files = sorted(Path(f"{PROJECT_DIRECTORY}/tigge_data").glob("*.grib"))
 

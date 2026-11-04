@@ -4,7 +4,7 @@ from pathlib import Path
 import time
 import json
 
-START = (2024,6 )
+START = (2025,1 )
 END =   (2025, 12)
 
 PROJECT_DIRECTORY = Path.cwd()
@@ -73,7 +73,6 @@ def download_one_month(year, month, forecast_type = "control-forecast", tag = "c
         print(f"[SKIP] {key} is already downloaded")
         return
     
-
     request = {
         "origin": "ecmwf",  # melyik állomás méréseit kérjuk / which station do we download the data from
         "year": str(year),
