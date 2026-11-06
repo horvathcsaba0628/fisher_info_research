@@ -14,3 +14,7 @@ download_log.json
 *.log
 
 delta_methods/
+
+.ipynb_checkpoints/
+
+.vscode/
